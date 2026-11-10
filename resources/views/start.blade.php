@@ -198,6 +198,62 @@
             text-shadow: 2px 2px 0 #000;
             animation: blink 1.2s steps(1) infinite 3s;
         }
+
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 3;
+            font-family: var(--font-ui);
+            font-size: .75rem;
+            color: #f3ead7;
+            padding: 8px 12px;
+            border: none;
+            background: rgba(10, 8, 6, .8);
+            box-shadow: 0 0 0 2px var(--gold-dark), 0 0 0 4px #000;
+            text-shadow: 2px 2px 0 #000;
+            cursor: pointer;
+        }
+        .sound-toggle:hover { color: var(--gold); }
+
+        /* ── Tela "Pressione start" (desbloqueia o áudio) ── */
+        .press-start {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            background: #000;
+            cursor: pointer;
+            transition: opacity .8s steps(6);
+        }
+        .press-start p {
+            font-family: var(--font-ui);
+            font-size: clamp(.9rem, 2vw, 1.2rem);
+            letter-spacing: .2em;
+            color: var(--gold);
+            text-shadow: 2px 2px 0 var(--crimson);
+            animation: blink 1s steps(1) infinite;
+        }
+        .press-start small {
+            font-family: var(--font-ui);
+            font-size: .65rem;
+            letter-spacing: .15em;
+            color: rgba(243, 234, 215, .5);
+        }
+        .press-start.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* As animações de entrada esperam a tela "Pressione start" sumir */
+        .title, .subtitle, .menu { animation-play-state: paused; }
+        body.started .title,
+        body.started .subtitle,
+        body.started .menu { animation-play-state: running; }
  
         /* ── Animações (steps() deixa o movimento "quadro a quadro") ── */
         @keyframes slow-zoom  { from { transform: scale(1); } to { transform: scale(1.06); } }
@@ -218,6 +274,15 @@
     </style>
 </head>
 <body>
+    <audio id="bgm" src="{{ asset('audio/tema.ogg') }}" loop preload="auto"></audio>
+    <audio id="sfxStart" src="{{ asset('audio/home_screen_entry_button.wav') }}" preload="auto"></audio>
+    <button class="sound-toggle" id="soundToggle" type="button">♪ Som: off</button>
+
+    <div class="press-start" id="pressStart">
+        <p>▶ Clique para entrar</p>
+        <small>ou pressione qualquer tecla</small>
+    </div>
+
     <div class="scene"></div>
     <div class="fog"></div>
     <div class="fog second"></div>
@@ -243,8 +308,72 @@
         <nav class="menu">
             <button class="btn primary" type="button">Nova Aventura</button>
             <button class="btn" type="button" disabled>Continuar</button>
-            <p class="footer">▶ Pressione start</p>
+            <p class="footer">v0.1</p>
         </nav>
     </main>
+
+    <script>
+        const bgm = document.getElementById('bgm');
+        const sfxStart = document.getElementById('sfxStart');
+        const toggle = document.getElementById('soundToggle');
+        const pressStart = document.getElementById('pressStart');
+
+        bgm.volume = 0.4;
+        sfxStart.volume = 0.7;
+
+        const ENTER_DELAY = 1000; // tempo (ms) entre o clique e a tela de título
+
+        let muted = false;
+        let entered = false;
+
+        function updateLabel() {
+            toggle.textContent = bgm.paused ? '♪ Som: off' : '♪ Som: on';
+        }
+
+        // Mostra a tela de título e toca a música
+        function showTitle() {
+            pressStart.classList.add('hidden');
+            document.body.classList.add('started');
+
+            if (!muted) {
+                bgm.play().catch(() => {}).finally(updateLabel);
+            }
+        }
+
+        function enterGame(event) {
+            if (entered) return;
+            entered = true;
+            document.removeEventListener('keydown', enterGame);
+
+            // Veio do autoplay (sem clique): entra direto, sem efeito e sem espera
+            if (!event) {
+                showTitle();
+                return;
+            }
+
+            // Veio do clique/tecla: toca o efeito agora, mostra o título depois
+            sfxStart.currentTime = 0;
+            sfxStart.play().catch(() => {});
+            setTimeout(showTitle, ENTER_DELAY);
+        }
+
+        // 1ª tentativa: tocar sozinho assim que a página abre.
+        // Se o navegador deixar, pula a tela preta direto.
+        bgm.play()
+            .then(() => enterGame())
+            .catch(() => {
+                // Bloqueado: espera o clique/tecla na tela "Pressione start"
+                pressStart.addEventListener('click', enterGame);
+                document.addEventListener('keydown', enterGame);
+            });
+
+        bgm.addEventListener('play', updateLabel);
+        bgm.addEventListener('pause', updateLabel);
+
+        toggle.addEventListener('click', () => {
+            muted = !bgm.paused;
+            muted ? bgm.pause() : bgm.play();
+        });
+    </script>
 </body>
 </html>
