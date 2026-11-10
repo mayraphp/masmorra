@@ -2,8 +2,6 @@
 
 RPG de navegador por turnos, feito com **Laravel 13** e **Vue 3**, com tema de fantasia medieval.
 
-Projeto de estudo: o objetivo principal é aprender Vue do zero enquanto o jogo é construído, tela por tela.
-
 ## 🎮 O jogo
 
 O jogador cria um herói, entra na masmorra, enfrenta monstros em combate por turnos, ganha XP e ouro, sobe de nível e equipa itens.
@@ -68,18 +66,6 @@ docker compose exec app php artisan migrate --seed
 Acesse em **http://localhost:8000**.
 
 > O MySQL fica exposto na porta **3307** do host, para não conflitar com um MySQL local.
-
-## 🗺️ Roadmap
-
-- [x] Ambiente Docker
-- [x] Migrations, models e seeders (classes, monstros e itens)
-- [x] Tela de start
-- [ ] Setup do Vue + Vite
-- [ ] Criação de personagem
-- [ ] Taverna (hub) e navegação
-- [ ] Combate por turnos
-- [ ] Loja
-- [ ] Inventário em grade com arrastar e soltar
 
 ## 📄 Licença
 
