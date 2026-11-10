@@ -1,58 +1,86 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ⚔️ Masmorra de Turno
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+RPG de navegador por turnos, feito com **Laravel 13** e **Vue 3**, com tema de fantasia medieval.
 
-## About Laravel
+Projeto de estudo: o objetivo principal é aprender Vue do zero enquanto o jogo é construído, tela por tela.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🎮 O jogo
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+O jogador cria um herói, entra na masmorra, enfrenta monstros em combate por turnos, ganha XP e ouro, sobe de nível e equipa itens.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Classes
 
-## Learning Laravel
+| Classe | Estilo | Passiva |
+|---|---|---|
+| 🛡️ Cavaleiro | Forte e constante | Reduz 20% de todo dano recebido |
+| 🔮 Mago | Canhão de vidro | Dano ×1.3 e ignora metade da defesa |
+| 🗡️ Ladino | Crítico e esquiva | Crítico causa ×2.5 |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Monstros
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Do mais fraco para o mais forte: **Gosma → Esqueleto → Fantasma → Mago Corrompido**.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Inventário
 
-## Agentic Development
+Inspirado em Path of Exile: slots fixos de equipamento (arma, capacete, luvas, calça e botas) e mochila em grade, onde cada item ocupa um tamanho diferente.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 🛠️ Stack
+
+- **Backend:** Laravel 13 (PHP 8.4)
+- **Frontend:** Vue 3 + Vite *(em construção)*
+- **Banco:** MySQL 8.4
+- **Ambiente:** Docker (PHP-FPM + Nginx + MySQL), sem Sail
+
+## 🚀 Como rodar
+
+Pré-requisito: Docker e Docker Compose.
 
 ```bash
-composer require laravel/boost --dev
+# Clonar o repositório
+git clone git@github.com:mayraphp/masmorra.git
+cd masmorra
 
-php artisan boost:install
+# Configurar o ambiente
+cp .env.example .env
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+No `.env`, ajuste o banco:
 
-## Contributing
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=rpg
+DB_USERNAME=rpg
+DB_PASSWORD=secret
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# Subir os containers
+docker compose up -d --build
 
-## Code of Conduct
+# Instalar dependências, gerar a chave e popular o banco
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Acesse em **http://localhost:8000**.
 
-## Security Vulnerabilities
+> O MySQL fica exposto na porta **3307** do host, para não conflitar com um MySQL local.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🗺️ Roadmap
 
-## License
+- [x] Ambiente Docker
+- [x] Migrations, models e seeders (classes, monstros e itens)
+- [x] Tela de start
+- [ ] Setup do Vue + Vite
+- [ ] Criação de personagem
+- [ ] Taverna (hub) e navegação
+- [ ] Combate por turnos
+- [ ] Loja
+- [ ] Inventário em grade com arrastar e soltar
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📄 Licença
+
+Projeto pessoal de estudo.
